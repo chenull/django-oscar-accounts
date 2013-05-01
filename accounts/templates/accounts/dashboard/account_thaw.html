@@ -9,11 +9,11 @@
 {% block breadcrumbs %}
 <ul class="breadcrumb">
     <li>
-		<a href="{% url dashboard:index %}">{% trans "Dashboard" %}</a>
+		<a href="{% url "dashboard:index" %}">{% trans "Dashboard" %}</a>
         <span class="divider">/</span>
     </li>
     <li>
-		<a href="{% url accounts-list %}">{% trans "Accounts" %}</a>
+		<a href="{% url "dashboard:accounts-list" %}">{% trans "Accounts" %}</a>
         <span class="divider">/</span>
     </li>
 	<li class="active">{% trans "Thaw account" %} #{{ account.id }}</li>
