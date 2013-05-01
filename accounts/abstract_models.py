@@ -344,6 +344,15 @@ class Transfer(models.Model):
 
     date_created = models.DateTimeField(auto_now_add=True)
 
+    # Transfer status
+    OK, REV, LOCK = ('O','R','L')
+    TRANSFER_STATUS = (
+        (LOCK, _("Locked")),
+        (OK, _("OK")),
+        (REV, _("Reversed")),
+    )
+    status = models.CharField(max_length=1, choices=TRANSFER_STATUS)
+
     # Use a custom manager that extends the create method to also create the
     # account transactions.
     objects = PostingManager()

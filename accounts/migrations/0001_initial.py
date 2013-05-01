@@ -59,6 +59,7 @@ class Migration(SchemaMigration):
             ('user', self.gf('django.db.models.fields.related.ForeignKey')(related_name='transfers', null=True, on_delete=models.SET_NULL, to=orm['tenant.User'])),
             ('username', self.gf('django.db.models.fields.CharField')(max_length=128)),
             ('date_created', self.gf('django.db.models.fields.DateTimeField')(auto_now_add=True, blank=True)),
+            ('status', self.gf('django.db.models.fields.CharField')(max_length=1)),
         ))
         db.send_create_signal(u'accounts', ['Transfer'])
 
@@ -166,6 +167,7 @@ class Migration(SchemaMigration):
             'parent': ('django.db.models.fields.related.ForeignKey', [], {'related_name': "'related_transfers'", 'null': 'True', 'to': u"orm['accounts.Transfer']"}),
             'reference': ('django.db.models.fields.CharField', [], {'max_length': '64', 'unique': 'True', 'null': 'True'}),
             'source': ('django.db.models.fields.related.ForeignKey', [], {'related_name': "'source_transfers'", 'to': u"orm['accounts.Account']"}),
+            'status': ('django.db.models.fields.CharField', [], {'max_length': '1'}),
             'user': ('django.db.models.fields.related.ForeignKey', [], {'related_name': "'transfers'", 'null': 'True', 'on_delete': 'models.SET_NULL', 'to': u"orm['tenant.User']"}),
             'username': ('django.db.models.fields.CharField', [], {'max_length': '128'})
         },
