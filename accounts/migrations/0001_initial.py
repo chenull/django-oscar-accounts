@@ -30,6 +30,7 @@ class Migration(SchemaMigration):
             ('status', self.gf('django.db.models.fields.CharField')(default='Open', max_length=32)),
             ('credit_limit', self.gf('django.db.models.fields.DecimalField')(default='0.00', null=True, max_digits=12, decimal_places=2, blank=True)),
             ('balance', self.gf('django.db.models.fields.DecimalField')(default='0.00', null=True, max_digits=12, decimal_places=2)),
+            ('balance_locked', self.gf('django.db.models.fields.DecimalField')(default='0.00', null=True, max_digits=12, decimal_places=2)),
             ('start_date', self.gf('django.db.models.fields.DateTimeField')(null=True, blank=True)),
             ('end_date', self.gf('django.db.models.fields.DateTimeField')(null=True, blank=True)),
             ('product_range', self.gf('django.db.models.fields.related.ForeignKey')(to=orm['offer.Range'], null=True, blank=True)),
@@ -59,7 +60,7 @@ class Migration(SchemaMigration):
             ('user', self.gf('django.db.models.fields.related.ForeignKey')(related_name='transfers', null=True, on_delete=models.SET_NULL, to=orm['tenant.User'])),
             ('username', self.gf('django.db.models.fields.CharField')(max_length=128)),
             ('date_created', self.gf('django.db.models.fields.DateTimeField')(auto_now_add=True, blank=True)),
-            ('status', self.gf('django.db.models.fields.CharField')(max_length=1)),
+            ('status', self.gf('django.db.models.fields.CharField')(default='O', max_length=1)),
         ))
         db.send_create_signal(u'accounts', ['Transfer'])
 
@@ -116,6 +117,7 @@ class Migration(SchemaMigration):
             'Meta': {'object_name': 'Account'},
             'account_type': ('django.db.models.fields.related.ForeignKey', [], {'related_name': "'accounts'", 'null': 'True', 'to': u"orm['accounts.AccountType']"}),
             'balance': ('django.db.models.fields.DecimalField', [], {'default': "'0.00'", 'null': 'True', 'max_digits': '12', 'decimal_places': '2'}),
+            'balance_locked': ('django.db.models.fields.DecimalField', [], {'default': "'0.00'", 'null': 'True', 'max_digits': '12', 'decimal_places': '2'}),
             'can_be_used_for_non_products': ('django.db.models.fields.BooleanField', [], {'default': 'True'}),
             'code': ('django.db.models.fields.CharField', [], {'max_length': '128', 'unique': 'True', 'null': 'True', 'blank': 'True'}),
             'credit_limit': ('django.db.models.fields.DecimalField', [], {'default': "'0.00'", 'null': 'True', 'max_digits': '12', 'decimal_places': '2', 'blank': 'True'}),
@@ -167,7 +169,7 @@ class Migration(SchemaMigration):
             'parent': ('django.db.models.fields.related.ForeignKey', [], {'related_name': "'related_transfers'", 'null': 'True', 'to': u"orm['accounts.Transfer']"}),
             'reference': ('django.db.models.fields.CharField', [], {'max_length': '64', 'unique': 'True', 'null': 'True'}),
             'source': ('django.db.models.fields.related.ForeignKey', [], {'related_name': "'source_transfers'", 'to': u"orm['accounts.Account']"}),
-            'status': ('django.db.models.fields.CharField', [], {'max_length': '1'}),
+            'status': ('django.db.models.fields.CharField', [], {'default': "'O'", 'max_length': '1'}),
             'user': ('django.db.models.fields.related.ForeignKey', [], {'related_name': "'transfers'", 'null': 'True', 'on_delete': 'models.SET_NULL', 'to': u"orm['tenant.User']"}),
             'username': ('django.db.models.fields.CharField', [], {'max_length': '128'})
         },

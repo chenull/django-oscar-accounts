@@ -99,6 +99,10 @@ class Account(models.Model):
     balance = models.DecimalField(decimal_places=2, max_digits=12,
                                   default=D('0.00'), null=True)
 
+    # kebutuhan locked amount untuk mindho
+    balance_locked = models.DecimalField(decimal_places=2, max_digits=12,
+                                  default=D('0.00'), null=True)
+
     # Accounts can have an date range to indicate when they are 'active'.  Note
     # that these dates are ignored when creating a transfer.  It is up to your
     # client code to use them to enforce business logic.
@@ -147,10 +151,18 @@ class Account(models.Model):
             self.code = self.code.upper()
         # Ensure the balance is always correct when saving
         self.balance = self._balance()
+        self.balance_locked = self._balance_locked()
         return super(Account, self).save(*args, **kwargs)
 
     def _balance(self):
-        aggregates = self.transactions.aggregate(sum=Sum('amount'))
+        aggregates = self.transactions.filter(
+            transfer__status='O').aggregate(sum=Sum('amount'))
+        sum = aggregates['sum']
+        return D('0.00') if sum is None else sum
+
+    def _balance_locked(self):
+        aggregates = self.transactions.filter(
+            transfer__status='L').aggregate(sum=Sum('amount'))
         sum = aggregates['sum']
         return D('0.00') if sum is None else sum
 
@@ -258,7 +270,8 @@ class PostingManager(models.Manager):
     """
 
     def create(self, source, destination, amount, parent=None,
-               user=None, merchant_reference=None, description=None):
+               user=None, merchant_reference=None, description=None,
+               status=None):
         # Write out transfer (which involves multiple writes).  We use a
         # database transaction to ensure that all get written out correctly.
         self.verify_transfer(source, destination, amount, user)
@@ -269,6 +282,7 @@ class PostingManager(models.Manager):
                 amount=amount,
                 parent=parent,
                 user=user,
+                status=status,
                 merchant_reference=merchant_reference,
                 description=description)
             # Create transaction records for audit trail
@@ -345,13 +359,12 @@ class Transfer(models.Model):
     date_created = models.DateTimeField(auto_now_add=True)
 
     # Transfer status
-    OK, REV, LOCK = ('O','R','L')
+    OK, LOCK = ('O','L')
     TRANSFER_STATUS = (
         (LOCK, _("Locked")),
         (OK, _("OK")),
-        (REV, _("Reversed")),
     )
-    status = models.CharField(max_length=1, choices=TRANSFER_STATUS)
+    status = models.CharField(max_length=1, choices=TRANSFER_STATUS, default=OK)
 
     # Use a custom manager that extends the create method to also create the
     # account transactions.

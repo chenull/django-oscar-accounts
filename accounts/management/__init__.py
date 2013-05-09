@@ -57,5 +57,9 @@ def ensure_core_accounts_exists(sender, **kwargs):
     income = liabilities.add_child(name=names.DEFERRED_INCOME)
     for name in names.DEFERRED_INCOME_ACCOUNT_TYPES:
         income.add_child(name=name)
+    # mindho
+    deposit=assets.add_child(name='Deposit')
+    rekening=liabilities.add_child(name='Rekening')
+
 
 signals.post_syncdb.connect(ensure_core_accounts_exists, sender=models)

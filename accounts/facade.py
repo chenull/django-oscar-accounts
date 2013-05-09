@@ -34,7 +34,7 @@ def close_expired_accounts():
 
 def transfer(source, destination, amount,
              parent=None, user=None, merchant_reference=None,
-             description=None):
+             description=None, status=None):
     """
     Transfer funds between source and destination accounts.
 
@@ -47,17 +47,20 @@ def transfer(source, destination, amount,
     :user: Authorising user
     :merchant_reference: An optional merchant ref associated with this transfer
     :description: Description of transaction
+    :status: Lock, amount di lock, otherwise ok saja
     """
+
     msg = "Transfer of %.2f from account #%d to account #%d" % (
         amount, source.id, destination.id)
     if user:
         msg += " authorised by user #%d (%s)" % (user.id, user.username,)
     if description:
         msg += " '%s'" % description
+    if not status: status = 'O'
     try:
         transfer = Transfer.objects.create(
             source, destination, amount, parent, user,
-            merchant_reference, description)
+            merchant_reference, description, status=status)
     except exceptions.AccountException, e:
         logger.warning("%s - failed: '%s'", msg, e)
         raise
@@ -96,5 +99,49 @@ def reverse(transfer, user=None, merchant_reference=None, description=None):
             "Unable to reverse transfer: %s" % e)
     else:
         logger.info("%s - successful, transfer: %s", msg,
+                    transfer.reference)
+        return transfer
+
+def lock(transfer, description=None):
+    """
+    Nge lock sebuah transfer
+    """
+    msg = "Locking transfer %s" % (transfer.reference)
+    if description:
+        msg += " '%s'" % description
+    try:
+        transfer.status='L'
+        transfer.save()
+    except exceptions.AccountException, e:
+        logger.warning("%s - failed: '%s'", msg, e)
+        raise
+    except Exception, e:
+        logger.error("%s - failed: '%s'", msg, e)
+        raise exceptions.AccountException(
+            "Unable to lock transfer: %s" % e)
+    else:
+        logger.info("%s - successful, lock transfer: %s", msg,
+                    transfer.reference)
+        return transfer
+
+def unlock(transfer, description=None):
+    """
+    Nge unlock sebuah transfer
+    """
+    msg = "Locking transfer %s" % (transfer.reference)
+    if description:
+        msg += " '%s'" % description
+    try:
+        transfer.status='O'
+        transfer.save()
+    except exceptions.AccountException, e:
+        logger.warning("%s - failed: '%s'", msg, e)
+        raise
+    except Exception, e:
+        logger.error("%s - failed: '%s'", msg, e)
+        raise exceptions.AccountException(
+            "Unable to unlock transfer: %s" % e)
+    else:
+        logger.info("%s - successful, unlock transfer: %s", msg,
                     transfer.reference)
         return transfer
